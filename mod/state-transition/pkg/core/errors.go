@@ -17,10 +17,13 @@
 // EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
 // TITLE.
-
 package core
 
-import "github.com/berachain/beacon-kit/mod/errors"
+import (
+	"fmt"
+
+	"github.com/berachain/beacon-kit/mod/errors"
+)
 
 var (
 	// ErrBlockSlotTooLow is returned when the block slot is too low.
@@ -59,10 +62,6 @@ var (
 	// in a block does not match the expected value.
 	ErrPenaltiesLengthMismatch = errors.New("penalties length mismatch")
 
-	// ErrExceedsBlockBlobLimit is returned when the block exceeds the blob
-	// limit.
-	ErrExceedsBlockBlobLimit = errors.New("block exceeds blob limit")
-
 	// ErrSlashedProposer is returned when a block is processed in which
 	// the proposer is slashed.
 	ErrSlashedProposer = errors.New(
@@ -77,4 +76,58 @@ var (
 
 	// ErrXorInvalid is returned when the XOR operation is invalid.
 	ErrXorInvalid = errors.New("xor invalid")
+
+	// ErrOutdatedSlashingCount is returned when the count
+	// of total slashing is not up to date.
+	//nolint: lll
+	ErrOutdatedSlashingCount = errors.New("count of total slashing is not up to date")
 )
+
+// ErrTooManyWithdrawal is returned
+// when the number of withdrawals exceeds the limit.
+type TooManyWithdrawalError struct {
+	Expected uint64
+	Actual   uint64
+}
+
+func (e TooManyWithdrawalError) Error() string {
+	return fmt.Sprintf("too many withdrawals, expected %d, got %d",
+		e.Expected, e.Actual)
+}
+
+// ErrExceedsBlockBlobLimit is returned
+// when the number of blobs in a block exceeds the limit.
+type ExceedsBlockBlobLimitError struct {
+	Expected uint64
+	Actual   int
+}
+
+func (e ExceedsBlockBlobLimitError) Error() string {
+	return fmt.Sprintf("block exceeds blob limit, expected: %d, got: %d",
+		e.Expected, e.Actual)
+}
+
+// ErrMismatchWithdrawalCount is returned when the count
+// of the withdrawals in a block does not match the expected value.
+type MismatchWithdrawalCountError struct {
+	Expected uint64
+	Actual   uint64
+}
+
+func (e MismatchWithdrawalCountError) Error() string {
+	return fmt.Sprintf("withdrawal count mismatch, expected %d, got %d",
+		e.Expected, e.Actual)
+}
+
+// ErrMismatchWithdrawal is returned when
+// the withdrawal is not as expected.
+type MismatchWithdrawalError struct {
+	Expected string
+	Actual   string
+	Index    int
+}
+
+func (e MismatchWithdrawalError) Error() string {
+	return fmt.Sprintf("withdrawals do not match expected %s, got %s at index %d",
+		e.Expected, e.Actual, e.Index)
+}

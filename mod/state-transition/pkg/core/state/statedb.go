@@ -24,9 +24,9 @@ import (
 	"reflect"
 
 	engineprimitives "github.com/berachain/beacon-kit/mod/engine-primitives/pkg/engine-primitives"
-	"github.com/berachain/beacon-kit/mod/errors"
 	"github.com/berachain/beacon-kit/mod/primitives/pkg/common"
 	"github.com/berachain/beacon-kit/mod/primitives/pkg/math"
+	"github.com/berachain/beacon-kit/mod/state-transition/pkg/core"
 )
 
 // StateDB is the underlying struct behind the BeaconState interface.
@@ -189,7 +189,7 @@ func (s *StateDB[
 
 	// Defensive check but total - oldValue should never underflow.
 	if oldValue > total {
-		return errors.New("count of total slashing is not up to date")
+		return core.ErrOutdatedSlashingCount
 	} else if err = s.SetTotalSlashing(
 		total - oldValue + amount,
 	); err != nil {

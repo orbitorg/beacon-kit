@@ -158,11 +158,10 @@ func (sp *StateProcessor[
 	// Verify the number of blobs.
 	blobKzgCommitments := body.GetBlobKzgCommitments()
 	if uint64(len(blobKzgCommitments)) > sp.cs.MaxBlobsPerBlock() {
-		return errors.Wrapf(
-			ErrExceedsBlockBlobLimit,
-			"expected: %d, got: %d",
-			sp.cs.MaxBlobsPerBlock(), len(blobKzgCommitments),
-		)
+		return ExceedsBlockBlobLimitError{
+			Expected: sp.cs.MaxBlobsPerBlock(),
+			Actual:   len(blobKzgCommitments),
+		}
 	}
 
 	// Verify the number of withdrawals.
@@ -170,10 +169,10 @@ func (sp *StateProcessor[
 	if withdrawals := payload.GetWithdrawals(); uint64(
 		len(payload.GetWithdrawals()),
 	) > sp.cs.MaxWithdrawalsPerPayload() {
-		return errors.Newf(
-			"too many withdrawals, expected: %d, got: %d",
-			sp.cs.MaxWithdrawalsPerPayload(), len(withdrawals),
-		)
+		return TooManyWithdrawalError{
+			Expected: sp.cs.MaxWithdrawalsPerPayload(),
+			Actual:   uint64(len(withdrawals)),
+		}
 	}
 	return nil
 }

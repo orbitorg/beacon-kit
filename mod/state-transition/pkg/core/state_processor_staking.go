@@ -21,7 +21,6 @@
 package core
 
 import (
-	"github.com/berachain/beacon-kit/mod/errors"
 	"github.com/berachain/beacon-kit/mod/primitives/pkg/common"
 	"github.com/berachain/beacon-kit/mod/primitives/pkg/math"
 	"github.com/berachain/beacon-kit/mod/primitives/pkg/version"
@@ -261,20 +260,21 @@ func (sp *StateProcessor[
 
 	// Ensure the withdrawals have the same length
 	if numWithdrawals != len(payloadWithdrawals) {
-		return errors.Newf(
-			"withdrawals do not match expected length %d, got %d",
-			len(expectedWithdrawals), len(payloadWithdrawals),
-		)
+		return MismatchWithdrawalCountError{
+			Expected: uint64(numWithdrawals),
+			Actual:   uint64(len(payloadWithdrawals)),
+		}
 	}
 
 	// Compare and process each withdrawal.
 	for i, wd := range expectedWithdrawals {
 		// Ensure the withdrawals match the local state.
 		if !wd.Equals(payloadWithdrawals[i]) {
-			return errors.Newf(
-				"withdrawals do not match expected %s, got %s",
-				spew.Sdump(wd), spew.Sdump(payloadWithdrawals[i]),
-			)
+			return MismatchWithdrawalError{
+				Expected: spew.Sdump(wd),
+				Actual:   spew.Sdump(payloadWithdrawals[i]),
+				Index:    i,
+			}
 		}
 
 		// Then we process the withdrawal.
